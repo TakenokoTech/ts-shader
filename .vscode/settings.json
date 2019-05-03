@@ -1,0 +1,5 @@
+{
+    "clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
+    "git.ignoreLimitWarning": true,
+    "glsllint.glslangValidatorPath": "glslangValidator"
+}
