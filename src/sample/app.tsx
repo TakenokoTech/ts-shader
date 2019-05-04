@@ -2,12 +2,11 @@ import * as THREE from "three";
 import OrbitControls from "three-orbitcontrols";
 import Stats from "stats-js";
 
-import vertexShader from "../shader/vertexShader.vert";
-import fragmentShader from "../shader/sample";
 import { MeshEnum } from "./Constance";
 import * as Obj from "./Object";
 import * as Prefab from "./Prefab";
 import { FresnelShader } from "./FresnelShader";
+import SampleMaterial from "../material/SampleMaterial";
 
 class Shader {
     private width = 0;
@@ -42,7 +41,7 @@ class Shader {
         // this.objList.push(Prefab.floar3);
         // this.objList.push(Prefab.floar4);
 
-        // this.objMap[MeshEnum.Plane] = this.createPlane();
+        this.objMap[MeshEnum.Plane] = this.createPlane();
         this.objMap[MeshEnum.Ball] = this.createBall({
             name: "ball",
             size: 150,
@@ -87,56 +86,28 @@ class Shader {
     }
 
     private createPlane(): THREE.Mesh {
-        const uniforms = {
-            u_time: { type: "f", value: 1.0 },
-            u_resolution: { type: "v2", value: new THREE.Vector2() },
-            u_mouse: { type: "v2", value: new THREE.Vector2() }
-        };
-
+        const sampleMaterial = new SampleMaterial();
         this.delegate[MeshEnum.Plane] = () => {
-            uniforms.u_resolution.value.x = this.renderer.domElement.width;
-            uniforms.u_resolution.value.y = this.renderer.domElement.height;
-            uniforms.u_time.value += 0.05;
+            sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height);
         };
 
-        var material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader
-        });
-
-        var geometry = new THREE.PlaneBufferGeometry(2, 2);
-        var mesh = new THREE.Mesh(geometry, material);
+        var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(200, 200, 200, 200), sampleMaterial.build());
+        mesh.position.set(0, 300, 0);
+        mesh.rotation.set(0, -Math.PI / 1, 0);
+        console.log(mesh);
         return mesh;
     }
 
-    private createBall(param: any): THREE.Object3D {
-        const uniforms = {
-            u_time: { type: "f", value: 1.0 },
-            u_resolution: { type: "v2", value: new THREE.Vector2() },
-            u_mouse: { type: "v2", value: new THREE.Vector2() }
-        };
-
-        this.delegate[MeshEnum.Plane] = () => {
-            uniforms.u_resolution.value.x = this.renderer.domElement.width;
-            uniforms.u_resolution.value.y = this.renderer.domElement.height;
-            uniforms.u_time.value += 0.05;
-        };
-        console.log(vertexShader);
-        const material = {
-            uniforms: uniforms,
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader
-            // color: 0x88ccff
-            // wireframe: true
+    private createBall(param: any): THREE.Mesh {
+        const sampleMaterial = new SampleMaterial();
+        this.delegate[MeshEnum.Ball] = () => {
+            sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height);
         };
 
         const ball = new THREE.Mesh(
             new THREE.BoxBufferGeometry(param.size, param.size, param.size),
-            new THREE.ShaderMaterial(material)
-            // new THREE.MeshLambertMaterial(material)
+            sampleMaterial.build()
         );
-
         ball.name = param.name;
         ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.rotation.set(param.rotation.x, param.rotation.y, param.rotation.z);
@@ -156,9 +127,9 @@ class Shader {
 
     private render() {
         this.delegate[MeshEnum.Plane]();
+        // this.delegate[MeshEnum.Ball]();
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
-        // console.log(this.camera.position);
     }
 
     public animate() {

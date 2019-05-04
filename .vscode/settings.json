@@ -1,5 +1,13 @@
 {
+    "files.exclude": {
+        "node_modules/**": true,
+        "dist/**": true,
+        "temp/**": true,
+        "*-lock.json/**": true,
+        "LICENSE": true
+},
     "clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
     "git.ignoreLimitWarning": true,
     "glsllint.glslangValidatorPath": "glslangValidator"
+    
 }

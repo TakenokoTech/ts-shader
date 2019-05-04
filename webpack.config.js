@@ -30,7 +30,8 @@ const development = {
     },
     plugins: [
         new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.html"] }], { context: "static" }),
-        new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.css"] }], { context: "static/css" })
+        new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.css"] }], { context: "static/css" }),
+        new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*"] }], { context: "static/assets" })
     ],
     devtool: "inline-source-map"
 };
@@ -50,7 +51,8 @@ const production = {
     },
     plugins: [
         new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.html"] }], { context: "static" }),
-        new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.css"] }], { context: "static/css" })
+        new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.css"] }], { context: "static/css" }),
+        new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*"] }], { context: "static/assets" })
     ]
 };
 
