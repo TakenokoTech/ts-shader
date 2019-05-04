@@ -44,7 +44,7 @@ const production = {
         filename: "[name].bundle.js"
     },
     resolve: {
-        extensions: [".tsx", ".ts", ".js", ".json", ".glsl"]
+        extensions: [".tsx", ".ts", ".js", ".json", ".glsl", ".vert"]
     },
     module: {
         rules: [babelRule, shaderRule]
