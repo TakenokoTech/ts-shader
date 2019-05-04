@@ -1,20 +1,25 @@
 import * as THREE from "three";
-import { ImageUtils } from "three";
+import EventListener from "../sample/EventListener";
 
 import vertexShader from "../shader/vertex/vertexShader";
 // import vertexShader from "../shader/tempShader";
 
-import fragmentShader from "../shader/fragment/texture";
+// import fragmentShader from "../shader/fragment/texture";
 // import fragmentShader from "../shader/fragment/rainbow";
 // import fragmentShader from "../shader/fragment/fragmentShader";
-// import fragmentShader from "../shader/untitled";
+// import fragmentShader from "../shader/fragment/whitenoise";
+// import fragmentShader from "../shader/fragment/colorful";
+import fragmentShader from "../shader/fragment/parameter";
 
 export default class SampleMaterial {
     uniforms = {
         u_time: { type: "f", value: 1.0 },
         u_resolution: { type: "v2", value: new THREE.Vector2() },
         u_mouse: { type: "v2", value: new THREE.Vector2() },
-        texture: { type: "t", value: new THREE.TextureLoader().load("a.jpg") }
+        texture: { type: "t", value: new THREE.TextureLoader().load("a.jpg") },
+        color: { type: "v3", value: new THREE.Vector3() },
+        param2: { type: "f", value: 0.1 },
+        param3: { type: "f", value: 0.1 }
     };
 
     constructor() {
@@ -38,9 +43,13 @@ export default class SampleMaterial {
     }
 
     delegate(width: number, height: number) {
-        // console.log(width, height);
-        this.uniforms.u_resolution.value.x = width;
-        this.uniforms.u_resolution.value.y = height;
+        this.uniforms.u_resolution.value.set(width, height);
+        this.uniforms.u_mouse.value.set(EventListener.mouse.x, EventListener.mouse.y);
         this.uniforms.u_time.value += 0.05;
+        this.uniforms.color.value.set(
+            -EventListener.param("param1") / -100,
+            -EventListener.param("param2") / -100,
+            -EventListener.param("param3") / -100
+        );
     }
 }

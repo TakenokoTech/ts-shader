@@ -1,0 +1,39 @@
+body {
+    margin: 0px;
+    border: 0;
+    background-color: white;
+}
+
+canvas {
+    width: 400px;
+    height: 400px;
+    display: block;
+}
+
+#param {
+    position: fixed;
+    right: 8px;
+    bottom: 8px;
+    background-color: #333333;
+    padding: 8px;
+    color: #FFF;
+    font-size: 10px;
+}
+
+#param input[type=range] {
+    vertical-align: middle;
+}
+
+#param input[type=text] {
+    vertical-align: middle;
+}
+
+#param div {
+    padding: 4px;
+}
+
+#param span {
+    display: inline-block;
+    width: 40px;
+    padding: 4px;
+}

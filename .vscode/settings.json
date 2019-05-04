@@ -5,9 +5,11 @@
         "temp/**": true,
         "*-lock.json/**": true,
         "LICENSE": true
-},
+    },
     "clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
     "git.ignoreLimitWarning": true,
-    "glsllint.glslangValidatorPath": "glslangValidator"
-    
+    "glsllint.glslangValidatorPath": "glslangValidator",
+    "[glsl]": {
+        "editor.formatOnSave": true,
+    }
 }

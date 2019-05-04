@@ -126,8 +126,7 @@ class Shader {
     }
 
     private render() {
-        this.delegate[MeshEnum.Plane]();
-        // this.delegate[MeshEnum.Ball]();
+        Object.keys(this.delegate).forEach(key => this.delegate[key]());
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
     }
