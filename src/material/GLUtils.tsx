@@ -1,46 +1,55 @@
+import * as THREE from "three";
+
 // フレームバッファをオブジェクトとして生成する関数
-export function createFramebuffer(width: number = 256, height: number = 256) {
-    const gl = getGL();
+export function createFramebuffer(postScene: THREE.Scene): { renderer: THREE.WebGLRenderer; texture: THREE.WebGLRenderTarget } {
+    var baseCamera, baseScene, renderTarget;
 
-    // フレームバッファの生成
-    var frameBuffer = gl.createFramebuffer();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
 
-    // フレームバッファをWebGLにバインド
-    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+    // rendererの作成
+    const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+    renderer.setClearColor("#CCC");
 
-    // 深度バッファ用レンダーバッファの生成とバインド
-    var depthRenderBuffer = gl.createRenderbuffer();
-    gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+    // canvasをbodyに追加
+    document.body.appendChild(renderer.domElement);
 
-    // レンダーバッファを深度バッファとして設定
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+    // canvasをリサイズ
+    renderer.setSize(windowWidth, windowHeight);
 
-    // フレームバッファにレンダーバッファを関連付ける
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+    // ベースの描画処理（renderTarget への描画用）
+    baseScene = new THREE.Scene();
 
-    // フレームバッファ用テクスチャの生成
-    var fTexture = gl.createTexture();
+    //ベースの描画処理用カメラ
+    baseCamera = new THREE.PerspectiveCamera(50, windowWidth / windowHeight, 0.1, 1000);
+    baseCamera.position.z = 20;
 
-    // フレームバッファ用のテクスチャをバインド
-    gl.bindTexture(gl.TEXTURE_2D, fTexture);
+    //ライトを追加
+    var baseLight = new THREE.DirectionalLight(new THREE.Color(0xffffff), 1);
+    baseLight.position.set(0, 10, 20);
+    baseScene.add(baseLight);
 
-    // フレームバッファ用のテクスチャにカラー用のメモリ領域を確保
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    //ベース用のマテリアルとジオメトリ
+    var texture = THREE.ImageUtils.loadTexture("assets/a.jpg");
+    var baseGeometry = new THREE.BoxGeometry(10, 10, 10);
+    var baseMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        wireframe: false
+    });
+    var baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
+    baseScene.add(baseMesh);
 
-    // テクスチャパラメータ
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    renderer.render(baseScene, baseCamera);
 
-    // フレームバッファにテクスチャを関連付ける
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fTexture, 0);
+    //オフスクリーンレンダリング用
+    renderTarget = new THREE.WebGLRenderTarget(256, 256, {
+        magFilter: THREE.NearestFilter,
+        minFilter: THREE.NearestFilter,
+        wrapS: THREE.ClampToEdgeWrapping,
+        wrapT: THREE.ClampToEdgeWrapping
+    });
 
-    // 各種オブジェクトのバインドを解除
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-    // オブジェクトを返して終了
-    return { f: frameBuffer, d: depthRenderBuffer, t: fTexture };
+    return { renderer: renderer, texture: renderTarget };
 }
 
 // キューブマップを生成する関数
@@ -50,7 +59,14 @@ export function generateCubeMap(): Promise<WebGLTexture> {
         var program = gl.createProgram();
         if (!program) throw new Error("");
 
-        var source = new Array("cube_PX.png", "cube_PY.png", "cube_PZ.png", "cube_NX.png", "cube_NY.png", "cube_NZ.png");
+        var source = new Array(
+            "assets/cube_PX.png",
+            "assets/cube_PY.png",
+            "assets/cube_PZ.png",
+            "assets/cube_NX.png",
+            "assets/cube_NY.png",
+            "assets/cube_NZ.png"
+        );
         var target = new Array(
             gl.TEXTURE_CUBE_MAP_POSITIVE_X,
             gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -80,7 +96,7 @@ export function generateCubeMap(): Promise<WebGLTexture> {
         const final = () => {
             var tex = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_CUBE_MAP, tex);
-            for (var j = 0; j < source.length; j++) gl.texImage2D(target[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img[j]);
+            // for (var j = 0; j < source.length; j++) gl.texImage2D(target[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img[j]);
             gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
             gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

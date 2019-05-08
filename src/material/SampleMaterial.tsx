@@ -21,8 +21,8 @@ export default class SampleMaterial {
         u_time: { type: "f", value: 1.0 },
         u_resolution: { type: "v2", value: new THREE.Vector2() },
         u_mouse: { type: "v2", value: new THREE.Vector2() },
-        texture: { type: "t", value: new THREE.TextureLoader().load("a.jpg") },
-        samplerCube: { type: "t", value: new THREE.TextureLoader().load("a.jpg") },
+        texture: { type: "t", value: new THREE.TextureLoader().load("assets/texture3.png") },
+        samplerCube: { type: "t", value: new THREE.TextureLoader().load("assets/a.jpg") },
         alpha: { type: "f", value: 0.5 },
         color: { type: "v3", value: new THREE.Vector3() },
         param2: { type: "f", value: 0.1 },
@@ -31,31 +31,42 @@ export default class SampleMaterial {
         mvpMatrix: { type: "m4", value: new THREE.Matrix4() }
     };
 
+    renderTarget: THREE.WebGLRenderTarget;
+
     constructor() {
         this.delegate = this.delegate.bind(this);
 
-        // GLUtils.generateCubeMap().then((tex: WebGLTexture) => {
-        ///this.uniforms.samplerCube.value = tex as THREE.Texture;
-        // });
+        GLUtils.generateCubeMap().then((tex: WebGLTexture) => {
+            this.uniforms.samplerCube.value = tex as THREE.Texture;
+        });
+
+        this.renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+            magFilter: THREE.NearestFilter,
+            minFilter: THREE.NearestFilter,
+            wrapS: THREE.ClampToEdgeWrapping,
+            wrapT: THREE.ClampToEdgeWrapping
+        });
     }
 
-    get parameters(): THREE.ShaderMaterialParameters {
+    get parameters(): /*THREE.ShaderMaterialParameters*/ any {
         return {
             uniforms: this.uniforms,
             vertexShader: vertexShader,
-            fragmentShader: fragmentShader
+            fragmentShader: fragmentShader,
             // color: 0x88ccff
             // wireframe: true
+            map: this.renderTarget.texture
         };
     }
 
     build() {
         const material = new THREE.ShaderMaterial(this.parameters);
+        // const material = new THREE.MeshLambertMaterial(this.parameters);
         material.side = THREE.DoubleSide;
         return material;
     }
 
-    delegate(width: number, height: number) {
+    delegate(width: number, height: number, renderer: THREE.WebGLRenderer) {
         this.uniforms.u_resolution.value.set(width, height);
         this.uniforms.u_mouse.value.set(EventListener.mouse.x, EventListener.mouse.y);
         this.uniforms.u_time.value += 0.05;
@@ -72,38 +83,8 @@ export default class SampleMaterial {
         const mvpMatrix = m.identity(m.create()); // 最終座標変換行列
         m.multiply(pMatrix, vMatrix, mvpMatrix); // p に v を掛ける
         m.multiply(mvpMatrix, mMatrix, mvpMatrix); // さらに m を掛ける
-        // console.log(mvpMatrix);
 
-        var fBuffer = GLUtils.createFramebuffer();
-        this.uniforms.samplerCube.value = fBuffer.t as THREE.Texture;
-        // console.log(fBuffer);
-    }
-}
-
-function createShader(gl: WebGLRenderingContext, type: number, text: string) {
-    const shader = gl.createShader(type);
-    if (!shader) throw new Error("");
-    gl.shaderSource(shader, text);
-    gl.compileShader(shader);
-
-    if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        return shader;
-    } else {
-        throw new Error(gl.getShaderInfoLog(shader) || "");
-    }
-}
-
-function createProgram(gl: WebGLRenderingContext, vs, fs) {
-    var program = gl.createProgram();
-    if (!program) throw new Error("");
-    gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vertexShader));
-    gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fragmentShader));
-    gl.linkProgram(program);
-
-    if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        gl.useProgram(program);
-        return program;
-    } else {
-        throw new Error(gl.getProgramInfoLog(program) || "");
+        renderer.setRenderTarget(this.renderTarget);
+        // this.uniforms.texture.value = this.renderTarget.texture;
     }
 }

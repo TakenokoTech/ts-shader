@@ -90,7 +90,10 @@ class Shader {
     private createPlane(): THREE.Mesh {
         const sampleMaterial = new SampleMaterial();
         this.delegate[MeshEnum.Plane] = () => {
-            sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height);
+            sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height, this.renderer);
+            this.renderer.render(this.scene, this.camera);
+            this.renderer.setRenderTarget(null);
+            // mesh.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
         };
 
         // var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(200, 200, 200, 200), sampleMaterial.build());
@@ -104,15 +107,18 @@ class Shader {
     private createBall(param: any): THREE.Mesh {
         const sampleMaterial = new SampleMaterial();
         this.delegate[MeshEnum.Ball] = () => {
-            sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height);
+            sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height, this.renderer);
+            this.renderer.render(this.scene, this.camera);
+            this.renderer.setRenderTarget(null);
+            mesh.rotation.set(0, 0, 0);
         };
 
-        const ball = new THREE.Mesh(new THREE.BoxBufferGeometry(param.size, param.size, param.size, 10, 10, 10), sampleMaterial.build());
-        ball.name = param.name;
-        ball.position.set(param.position.x, param.position.y, param.position.z);
-        ball.rotation.set(param.rotation.x, param.rotation.y, param.rotation.z);
-        ball.castShadow = true;
-        return ball;
+        const mesh = new THREE.Mesh(new THREE.BoxBufferGeometry(param.size, param.size, param.size, 10, 10, 10), sampleMaterial.build());
+        mesh.name = param.name;
+        mesh.position.set(param.position.x, param.position.y, param.position.z);
+        mesh.rotation.set(param.rotation.x, param.rotation.y, param.rotation.z);
+        mesh.castShadow = true;
+        return mesh;
     }
 
     createStats(): Stats {
