@@ -1,4 +1,5 @@
 export enum MeshEnum {
     Plane = "Plane",
-    Ball = "Ball"
+    Ball = "Ball",
+    Water = "Water"
 }

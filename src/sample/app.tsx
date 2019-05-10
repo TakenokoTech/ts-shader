@@ -7,6 +7,7 @@ import * as Obj from "./Object";
 import * as Prefab from "./Prefab";
 import { FresnelShader } from "./FresnelShader";
 import SampleMaterial from "../material/SampleMaterial";
+import WaterMaterial from "../material/WaterMaterial";
 
 class Shader {
     private width = 0;
@@ -47,6 +48,11 @@ class Shader {
             size: 150,
             position: { x: 0, y: 100, z: 0 },
             rotation: { x: Math.PI / 2, y: Math.PI / 2, z: 0 }
+        });
+        this.objMap[MeshEnum.Water] = this.createWater({
+            name: "water",
+            position: { x: 0, y: -50, z: 0 },
+            rotation: { x: -Math.PI / 2, y: 0, z: 0 }
         });
         this.scene.background = new THREE.Color(0xb8e6ff);
         Object.keys(this.objMap).forEach(key => this.scene.add(this.objMap[key]));
@@ -114,6 +120,20 @@ class Shader {
         };
 
         const mesh = new THREE.Mesh(new THREE.BoxBufferGeometry(param.size, param.size, param.size, 10, 10, 10), sampleMaterial.build());
+        mesh.name = param.name;
+        mesh.position.set(param.position.x, param.position.y, param.position.z);
+        mesh.rotation.set(param.rotation.x, param.rotation.y, param.rotation.z);
+        mesh.castShadow = true;
+        return mesh;
+    }
+
+    private createWater(param: any): THREE.Mesh {
+        const waterMaterial = new WaterMaterial(this.lights[0]);
+        this.delegate[MeshEnum.Water] = () => {
+            waterMaterial.delegate();
+        };
+
+        const mesh = waterMaterial.build();
         mesh.name = param.name;
         mesh.position.set(param.position.x, param.position.y, param.position.z);
         mesh.rotation.set(param.rotation.x, param.rotation.y, param.rotation.z);
