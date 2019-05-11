@@ -1,11 +1,5 @@
 import * as THREE from "three";
-import Water from "../extension/Water";
-
-// declare module "three" {
-//     export class Water extends THREE.Mesh {
-//         material: THREE.ShaderMaterial;
-//     }
-// }
+import Water from "../three/Water";
 
 export default class WaterMaterial {
     light: THREE.Light;

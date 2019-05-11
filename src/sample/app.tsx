@@ -8,6 +8,7 @@ import * as Prefab from "./Prefab";
 import { FresnelShader } from "./FresnelShader";
 import SampleMaterial from "../material/SampleMaterial";
 import WaterMaterial from "../material/WaterMaterial";
+import Bloom from "../material/Bloom";
 
 class Shader {
     private width = 0;
@@ -49,11 +50,12 @@ class Shader {
             position: { x: 0, y: 100, z: 0 },
             rotation: { x: Math.PI / 2, y: Math.PI / 2, z: 0 }
         });
-        this.objMap[MeshEnum.Water] = this.createWater({
-            name: "water",
-            position: { x: 0, y: -50, z: 0 },
-            rotation: { x: -Math.PI / 2, y: 0, z: 0 }
-        });
+        // this.objMap[MeshEnum.Water] = this.createWater({
+        //     name: "water",
+        //     position: { x: 0, y: -50, z: 0 },
+        //     rotation: { x: -Math.PI / 2, y: 0, z: 0 }
+        // });
+        this.createBloom();
         this.scene.background = new THREE.Color(0xb8e6ff);
         Object.keys(this.objMap).forEach(key => this.scene.add(this.objMap[key]));
         this.lights.forEach(l => this.scene.add(l));
@@ -141,6 +143,13 @@ class Shader {
         return mesh;
     }
 
+    private createBloom() {
+        const bloom = new Bloom(this.scene, this.camera, this.renderer);
+        this.delegate["Bloom"] = () => {
+            bloom.delegate();
+        };
+    }
+
     createStats(): Stats {
         const stats = new Stats();
         stats.dom.style.position = "fix";
@@ -152,8 +161,12 @@ class Shader {
     }
 
     private render() {
+        console.log("render");
         Object.keys(this.delegate).forEach(key => this.delegate[key]());
         this.renderer.render(this.scene, this.camera);
+
+        console.log("bloom");
+        this.delegate["Bloom"]();
         this.stats.update();
     }
 
