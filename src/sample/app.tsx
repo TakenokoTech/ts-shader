@@ -9,6 +9,7 @@ import { FresnelShader } from "./FresnelShader";
 import SampleMaterial from "../material/SampleMaterial";
 import WaterMaterial from "../material/WaterMaterial";
 import Bloom from "../material/Bloom";
+import { LayerType } from "./Constance";
 
 class Shader {
     private width = 0;
@@ -28,6 +29,7 @@ class Shader {
         this.animate = this.animate.bind(this);
         this.render = this.render.bind(this);
         this.setupControls = this.setupControls.bind(this);
+        this.createWater = this.createWater.bind(this);
 
         const len = Math.min(window.innerWidth, window.innerHeight);
         [this.width, this.height] = [window.innerWidth, window.innerHeight];
@@ -43,20 +45,20 @@ class Shader {
         // this.objList.push(Prefab.floar3);
         // this.objList.push(Prefab.floar4);
 
-        this.objMap[MeshEnum.Plane] = this.createPlane();
-        this.objMap[MeshEnum.Ball] = this.createBall({
-            name: "ball",
+        this.objMap[MeshEnum.Ball] = this.createBall();
+        this.objMap[MeshEnum.Box] = this.createBox({
+            name: "box",
             size: 150,
             position: { x: 0, y: 100, z: 0 },
             rotation: { x: Math.PI / 2, y: Math.PI / 2, z: 0 }
         });
-        // this.objMap[MeshEnum.Water] = this.createWater({
-        //     name: "water",
-        //     position: { x: 0, y: -50, z: 0 },
-        //     rotation: { x: -Math.PI / 2, y: 0, z: 0 }
-        // });
+        this.objMap[MeshEnum.Water] = this.createWater({
+            name: "water",
+            position: { x: 0, y: -50, z: 0 },
+            rotation: { x: -Math.PI / 2, y: 0, z: 0 }
+        });
         this.createBloom();
-        this.scene.background = new THREE.Color(0xb8e6ff);
+        this.scene.background = new THREE.TextureLoader().load("assets/sky.jpg"); //new THREE.Color(/*0x89bdde */ 0xb8e6ff);
         Object.keys(this.objMap).forEach(key => this.scene.add(this.objMap[key]));
         this.lights.forEach(l => this.scene.add(l));
         this.objList.forEach(element => this.scene.add(element));
@@ -95,9 +97,9 @@ class Shader {
         return lights;
     }
 
-    private createPlane(): THREE.Mesh {
+    private createBall(): THREE.Mesh {
         const sampleMaterial = new SampleMaterial();
-        this.delegate[MeshEnum.Plane] = () => {
+        this.delegate[MeshEnum.Ball] = () => {
             sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height, this.renderer);
             this.renderer.render(this.scene, this.camera);
             this.renderer.setRenderTarget(null);
@@ -108,13 +110,13 @@ class Shader {
         var mesh = new THREE.Mesh(new THREE.SphereBufferGeometry(100, 100, 100), sampleMaterial.build());
         mesh.position.set(0, 300, 0);
         mesh.rotation.set(0, -Math.PI / 1, 0);
-        console.log(mesh);
+        mesh.layers.enable(LayerType.BLOOM_SCENE);
         return mesh;
     }
 
-    private createBall(param: any): THREE.Mesh {
+    private createBox(param: any): THREE.Mesh {
         const sampleMaterial = new SampleMaterial();
-        this.delegate[MeshEnum.Ball] = () => {
+        this.delegate[MeshEnum.Box] = () => {
             sampleMaterial.delegate(this.renderer.domElement.width, this.renderer.domElement.height, this.renderer);
             this.renderer.render(this.scene, this.camera);
             this.renderer.setRenderTarget(null);
@@ -140,6 +142,7 @@ class Shader {
         mesh.position.set(param.position.x, param.position.y, param.position.z);
         mesh.rotation.set(param.rotation.x, param.rotation.y, param.rotation.z);
         mesh.castShadow = true;
+
         return mesh;
     }
 
@@ -161,12 +164,8 @@ class Shader {
     }
 
     private render() {
-        console.log("render");
         Object.keys(this.delegate).forEach(key => this.delegate[key]());
-        this.renderer.render(this.scene, this.camera);
-
-        console.log("bloom");
-        this.delegate["Bloom"]();
+        // this.renderer.render(this.scene, this.camera);
         this.stats.update();
     }
 

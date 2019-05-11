@@ -1,7 +1,6 @@
 const THREE = require("three")
 require("../three/ShaderPass");
 
-
 /**
  * @author alteredq / http://alteredqualia.com/
  */

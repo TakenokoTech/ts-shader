@@ -32,9 +32,11 @@ export default class SampleMaterial {
     };
 
     renderTarget: THREE.WebGLRenderTarget;
+    texture: THREE.Texture;
 
     constructor() {
         this.delegate = this.delegate.bind(this);
+        this.texture = new THREE.TextureLoader().load("assets/a.jpg");
 
         GLUtils.generateCubeMap().then((tex: WebGLTexture) => {
             this.uniforms.samplerCube.value = tex as THREE.Texture;
@@ -53,7 +55,7 @@ export default class SampleMaterial {
             uniforms: this.uniforms,
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
-            // color: 0x88ccff
+            // color: 0x88ccff,
             // wireframe: true
             map: this.renderTarget.texture
         };
@@ -75,6 +77,7 @@ export default class SampleMaterial {
             -EventListener.param("param2") / -100,
             -EventListener.param("param3") / -100
         );
+        this.uniforms.texture.value = this.texture;
 
         var m = new matIV();
         const mMatrix = m.identity(m.create()); // モデル変換行列
@@ -85,6 +88,5 @@ export default class SampleMaterial {
         m.multiply(mvpMatrix, mMatrix, mvpMatrix); // さらに m を掛ける
 
         renderer.setRenderTarget(this.renderTarget);
-        // this.uniforms.texture.value = this.renderTarget.texture;
     }
 }
