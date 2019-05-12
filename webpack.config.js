@@ -39,7 +39,7 @@ const development = {
 
 const production = {
     mode: "production",
-    entry: entry,
+    entry: { app: "./src/sample/app" },
     output: {
         path: path.resolve(__dirname, "prod-dist"),
         filename: "[name].bundle.js"
