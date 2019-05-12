@@ -17,7 +17,7 @@ class Shader {
     private stats: Stats;
 
     private scene: THREE.Scene = new THREE.Scene();
-    private camera: THREE.Camera;
+    private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private controls: OrbitControls;
     private lights: THREE.Light[] = [];
@@ -30,6 +30,7 @@ class Shader {
         this.render = this.render.bind(this);
         this.setupControls = this.setupControls.bind(this);
         this.createWater = this.createWater.bind(this);
+        this.onWindowResize = this.onWindowResize.bind(this);
 
         const len = Math.min(window.innerWidth, window.innerHeight);
         [this.width, this.height] = [window.innerWidth, window.innerHeight];
@@ -76,7 +77,7 @@ class Shader {
         return renderer;
     }
 
-    private setupCamera(): THREE.Camera {
+    private setupCamera(): THREE.PerspectiveCamera {
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 50000);
         camera.position.set(200, 400, -1000);
         return camera;
@@ -173,7 +174,14 @@ class Shader {
         requestAnimationFrame(this.animate.bind(this));
         this.render();
     }
+
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 }
 
 const shader = new Shader();
 shader.animate();
+window.addEventListener("resize", shader.onWindowResize, false);

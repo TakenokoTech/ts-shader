@@ -1,8 +1,12 @@
 import * as THREE from "three";
-import RenderPass from "../three/RenderPass";
+import EventListener from "../sample/EventListener";
+
 import EffectComposer from "../three/EffectComposer";
+import Pass from "../three/Pass";
+import RenderPass from "../three/RenderPass";
 import UnrealBloomPass from "../three/UnrealBloomPass";
 import ShaderPass from "../three/ShaderPass";
+import GlitchPass from "../three/GlitchPass";
 
 import vertexShader from "../shader/vertex/bloom.vert";
 import fragmentShader from "../shader/fragment/bloom.glsl";
@@ -55,6 +59,12 @@ export default class Bloom {
         this.finalComposer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
         this.finalComposer.addPass(renderScene);
         this.finalComposer.addPass(finalPass);
+        this.finalComposer.addPass(
+            (it => {
+                it.goWild = true;
+                return it;
+            })(new GlitchPass())
+        );
     }
 
     test() {
@@ -89,6 +99,10 @@ export default class Bloom {
         this.scene.background = tempBackground;
         this.scene.traverse(this.restoreMaterial);
         this.finalComposer.render();
+
+        this.finalComposer.passes.forEach((p: Pass) => {
+            if (p instanceof GlitchPass) p.enabled = EventListener.param("checkbox01");
+        });
     }
 
     darkenNonBloomed(o: THREE.Object3D) {

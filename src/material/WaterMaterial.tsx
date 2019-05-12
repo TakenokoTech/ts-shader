@@ -29,6 +29,7 @@ export default class WaterMaterial {
     build(): THREE.Mesh {
         // var waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
         var waterGeometry = new THREE.CircleBufferGeometry(10000, 64);
+        // var waterGeometry = new THREE.CylinderBufferGeometry(10000, 10000, 10000, 64, 64);
         this.water = new Water(waterGeometry, this.parameters);
         return this.water;
     }

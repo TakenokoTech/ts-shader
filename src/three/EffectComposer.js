@@ -1,4 +1,5 @@
 const THREE = require("three")
+require("../three/CopyShader");
 require("../three/ShaderPass");
 
 /**
