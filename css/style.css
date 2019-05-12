@@ -28,6 +28,11 @@ canvas {
     vertical-align: middle;
 }
 
+#param input[type=checkbox] {
+    vertical-align: middle;
+    margin: 0px;
+}
+
 #param div {
     padding: 4px;
 }
