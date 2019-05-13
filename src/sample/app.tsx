@@ -25,7 +25,10 @@ class Shader {
     private delegate: { [key: string]: (...param: any) => void } = {};
     private objList: THREE.Object3D[] = [];
 
-    constructor() {
+    private frame: number = 0;
+    private fps: number = 60;
+
+    constructor(private pixelRatio: number = window.devicePixelRatio) {
         this.animate = this.animate.bind(this);
         this.render = this.render.bind(this);
         this.setupControls = this.setupControls.bind(this);
@@ -72,6 +75,7 @@ class Shader {
             alpha: true
         });
         renderer.setSize(this.width, this.height);
+        renderer.setPixelRatio(this.pixelRatio);
         renderer.shadowMap.enabled = true;
         renderer.domElement.id = "canvas";
         return renderer;
@@ -172,7 +176,7 @@ class Shader {
 
     public animate() {
         requestAnimationFrame(this.animate.bind(this));
-        this.render();
+        if (this.frame++ % (60 / this.fps) == 0) this.render();
     }
 
     onWindowResize() {
@@ -185,3 +189,5 @@ class Shader {
 const shader = new Shader();
 shader.animate();
 window.addEventListener("resize", shader.onWindowResize, false);
+
+import "../utils/debug";

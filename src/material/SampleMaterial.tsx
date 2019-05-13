@@ -4,9 +4,9 @@ import * as GLUtils from "./GLUtils";
 
 import EventListener from "../sample/EventListener";
 
-// import vertexShader from "../shader/vertex/vertexShader";
+import vertexShader from "../shader/vertex/vertexShader";
 // import vertexShader from "../shader/tempShader";
-import vertexShader from "../shader/vertex/reflection";
+// import vertexShader from "../shader/vertex/reflection";
 
 // import fragmentShader from "../shader/fragment/texture";
 // import fragmentShader from "../shader/fragment/rainbow";
